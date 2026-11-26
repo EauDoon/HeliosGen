@@ -10,55 +10,73 @@
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 system-ui,sans-serif}
 main,header{max-width:1260px;margin:auto;padding:0 clamp(16px,4vw,56px)}
-header{display:flex;align-items:center;justify-content:space-between;min-height:66px;border-bottom:1px solid var(--line)}
+header{display:flex;align-items:center;justify-content:space-between;min-height:60px;border-bottom:1px solid var(--line)}
 header strong{font:italic 1.55rem Georgia,serif;color:var(--mint)}
 a{color:var(--mint);text-underline-offset:.22em;overflow-wrap:anywhere}
 h1,h2,h3,p{margin:0}
-h1{font:normal clamp(2.55rem,6vw,5.1rem)/1.02 Georgia,serif;letter-spacing:-.055em;margin:28px 0 12px}
+.overview{display:grid;grid-template-columns:1.15fr 1fr;align-items:center;gap:clamp(20px,4vw,64px);padding:clamp(20px,3.1vw,42px) 0}
+h1{font:normal clamp(2.3rem,4.8vw,4.15rem)/1.02 Georgia,serif;letter-spacing:-.052em;text-wrap:balance}
 h2{font:normal 1.9rem/1.2 Georgia,serif}
-.intro{max-width:66ch;color:var(--sub);margin-bottom:24px}
+.intro{max-width:49ch;color:var(--sub);text-wrap:pretty}
 button,select{font:inherit;color:var(--ink);background:#19282e;border:1px solid #476069;border-radius:6px;min-height:44px;padding:7px 12px;cursor:pointer}
 button:hover,select:hover{border-color:var(--mint)}
 :focus-visible{outline:3px solid var(--amber);outline-offset:3px}
 [hidden]{display:none!important}
 .controls,.camera,.stage-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-.controls{margin:20px 0 12px}
+.controls{margin:0 0 14px;gap:20px}
 label{display:flex;align-items:center;gap:8px;color:var(--sub);font-size:.88rem}
 .layout{display:grid;grid-template-columns:minmax(0,2.2fr) minmax(240px,1fr);gap:14px}
 .stage,.info,.index,details.result{border:1px solid var(--line);border-radius:13px}
-.stage{min-width:0;overflow:hidden;background:radial-gradient(ellipse at 49% 40%,#193334 0%,#122329 42%,#101c22 78%)}
+.stage{min-width:0;overflow:hidden;background:#101e24}
+#map{background:radial-gradient(circle at 1px 1px,#577a772f 1px,transparent 1.3px) 0 0/18px 18px,radial-gradient(ellipse at 50% 45%,#1a3838,#12272c 56%,#0e1d24)}
+.stage-head strong{font-size:.98rem;color:var(--ink)}
+.stage-head span{font: .75rem ui-monospace,monospace}
+.legend{display:flex;flex-wrap:wrap;gap:6px 16px;margin:0;padding:8px 16px;list-style:none;border-top:1px solid var(--line);font-size:.77rem;color:var(--sub)}
+.legend li::before,#layer::before{content:"";display:inline-block;width:7px;height:7px;margin-right:7px;border-radius:50%;background:var(--layer-color)}
 .stage-head,.camera{padding:12px 16px}
 .stage-head{justify-content:space-between;font-size:.8rem;color:var(--sub);border-bottom:1px solid var(--line)}
 #map{display:block;width:100%;height:clamp(320px,38vw,455px);touch-action:pan-y;user-select:none;cursor:grab}
 #map:active{cursor:grabbing}
 #map text{font:600 13px system-ui,sans-serif;paint-order:stroke;stroke:#142127;stroke-width:4px;stroke-linejoin:round;pointer-events:none}
-.camera{border-top:1px solid var(--line)}
-.camera small{color:var(--sub)}
-.info{background:var(--surface);padding:clamp(16px,2.4vw,28px);overflow-wrap:anywhere}
-#layer{display:block;color:var(--amber);font:600 .79rem ui-monospace,monospace;letter-spacing:.05em;margin:0 0 8px}
+.camera{border-top:1px solid var(--line);gap:6px}
+.camera button{min-width:44px}
+.camera small{flex:1 1 190px;padding-left:9px;line-height:1.4;color:var(--sub)}
+.info{background:linear-gradient(150deg,#16292c,var(--surface) 60%);border-top:3px solid var(--layer-color,var(--mint));padding:clamp(16px,2vw,25px);overflow-wrap:anywhere}
+#layer{display:block;color:var(--layer-color,var(--mint));font:600 .79rem ui-monospace,monospace;letter-spacing:.05em;margin:0 0 8px}
 #info-desc,.index p{color:var(--sub);margin:10px 0}
-#neighbors{padding-left:1.1em}
-#neighbors li{margin:8px 0}
-#neighbors a{color:var(--ink)}
+#neighbors{list-style:none;margin:10px 0 0;padding:0}
+#neighbors li{display:grid;grid-template-columns:36px 1fr;column-gap:7px;border-top:1px solid var(--line);padding:8px 0}
+.direction{grid-row:span 2;font:.75rem/1.6 ui-monospace,monospace;color:var(--sub)}
+#neighbors a{color:var(--ink);text-decoration-color:#738c88;text-underline-offset:.16em}
+.action{color:var(--sub);font-size:.85rem}
+.info h3{font-size:1rem;margin-top:22px}
 .info a code,.index code{font-size:.85rem}
 .result,.index{margin:18px 0;background:#101b21;padding:16px}
 summary{cursor:pointer;color:var(--mint);font-weight:650}
 pre{white-space:pre-wrap;overflow-wrap:anywhere;color:#d8e7e2;line-height:1.5;background:#0a1418;padding:12px;border-radius:6px}
 .index{margin-bottom:40px}.index h2{margin-bottom:16px}
-.catalog{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(240px,100%),1fr));gap:18px}
+.catalog{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
 .catalog article{border-top:1px solid var(--line);padding-top:14px;min-width:0}
 .catalog h3{font-size:1rem}
 .catalog ul{padding-left:20px;font-size:.86rem;color:var(--sub)}
-@media(max-width:780px){.layout{grid-template-columns:1fr}.controls label{flex-direction:column;align-items:flex-start}.camera small{flex-basis:100%}}
-@media(max-width:420px){.controls{gap:6px}.controls label,.controls select{max-width:100%}}
+@media(max-width:900px){.catalog{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:550px){.catalog{grid-template-columns:1fr}}
+@media(max-width:780px){
+  header{min-height:52px}.overview{display:block;padding:20px 0}.intro{margin-top:8px;line-height:1.4}
+  .layout{grid-template-columns:1fr}.controls{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .controls label{display:grid;gap:4px;min-width:0}.controls select{width:100%;min-width:0}
+  .camera small{padding-left:2px;font-size:.78rem}.stage-head,.camera{padding:8px 12px}
+  .legend{gap:6px 12px;padding:7px 12px}.info h3{margin-top:16px}
+}
+@media(max-width:420px){#map{height:300px}header nav{font-size:.84rem}.camera small{flex-basis:100%;line-height:1.4}.overview{padding:15px 0}.stage-head span{font-size:.69rem}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important}}
 </style>
 </head>
 <body>
 <header><strong>HeliosGen</strong><nav><a href="#source-index">Source index</a><span id="app-link" hidden> · <a href="./">Back to HeliosGen</a></span></nav></header>
 <main>
-<h1>Desktop architecture</h1>
-<p class="intro">Trace an image from the workflow canvas to its provider and back to disk. Follow the separate paths for saving a canvas and exporting its media.</p>
+<div class="overview"><h1>Desktop architecture</h1>
+<p class="intro">Trace image jobs, workflow saves, and exports across the desktop app.</p></div>
 <section id="interactive" hidden aria-label="Interactive architecture">
   <div class="controls">
     <label>Trace<select id="trace"><option value="all">All connections</option><option value="image">Generate an image</option><option value="save">Save a workflow</option><option value="zip">Export a workflow</option></select></label>
@@ -68,9 +86,10 @@ pre{white-space:pre-wrap;overflow-wrap:anywhere;color:#d8e7e2;line-height:1.5;ba
     <div class="stage">
       <div class="stage-head"><strong>Component map</strong><span id="counts"></span></div>
       <svg id="map" role="img" tabindex="0" aria-label="Rotatable 3D component map" aria-describedby="camera-help"></svg>
-      <div class="camera"><button type="button" id="left" aria-label="Rotate left">↶</button><button type="button" id="right" aria-label="Rotate right">↷</button><button type="button" id="reset">Reset view</button><small id="camera-help">Drag sideways or use the arrow keys to rotate. Choose a node on the map or in the component list.</small></div>
+      <ul class="legend" aria-label="Component layers"></ul>
+      <div class="camera"><button type="button" id="left" aria-label="Rotate left">↶</button><button type="button" id="right" aria-label="Rotate right">↷</button><button type="button" id="reset">Reset view</button><small id="camera-help">Drag or use arrow keys to rotate. Select a node to inspect it.</small></div>
     </div>
-    <aside class="info" aria-live="polite"><span id="layer"></span><h2 id="name"></h2><p id="info-desc"></p><a id="source"><code></code></a><h3 style="margin-top:24px;font-size:1rem">Connections</h3><ul id="neighbors"></ul></aside>
+    <aside class="info" aria-live="polite"><span id="layer"></span><h2 id="name"></h2><p id="info-desc"></p><a id="source"><code></code></a><h3>Connections</h3><ul id="neighbors"></ul></aside>
   </div>
   <details class="result"><summary>Inspect local query and JSON</summary><p>The fixed query reads the selected component from this page.</p><pre id="query"></pre><pre id="response"></pre></details>
 </section>
@@ -145,6 +164,13 @@ const paths = {
   zip:["canvas","export"]
 };
 const colors = {Shell:"#b8c9ff",Editor:"#88e5c4",Provider:"#f5bf80",Storage:"#96d9f1"};
+const legend=document.querySelector(".legend");
+for (const [layer,color] of Object.entries(colors)) {
+  const item=document.createElement("li");
+  item.textContent=layer;
+  item.style.setProperty("--layer-color",color);
+  legend.append(item);
+}
 const map = el("map");
 const pick = el("pick");
 const trace = el("trace");
@@ -158,37 +184,49 @@ const svgNode = (name, attrs) => {
   Object.entries(attrs).forEach(([key,value]) => elem.setAttribute(key,value));
   return elem;
 };
-function project([x,y,z],width,height) {
+function rotatePoint([x,y,z]) {
   const u = x*Math.cos(yaw) - z*Math.sin(yaw);
   const depth = x*Math.sin(yaw) + z*Math.cos(yaw);
   const v = y*Math.cos(pitch) - depth*Math.sin(pitch);
   const w = y*Math.sin(pitch) + depth*Math.cos(pitch);
   const perspective = 7/(7-w);
-  const scale = Math.min((width-58)/5.15,(height-80)/3.6)*perspective;
-  return {x:width/2+u*scale,y:height/2-v*scale,depth:w};
+  return {x:u*perspective,y:-v*perspective,depth:w};
 }
 function draw() {
   const width = map.clientWidth, height = map.clientHeight;
   if (!width || !height) return;
   map.setAttribute("viewBox", `0 0 ${width} ${height}`);
+  // Frame the visible trace. A short route stays centered when other nodes
+  // disappear; label and touch margins remain available on narrow screens.
+  const visible=activeIDs.map(id=>rotatePoint(nodes.get(id).point));
+  const xs=visible.map(p=>p.x), ys=visible.map(p=>p.y);
+  const left=Math.min(...xs), right=Math.max(...xs);
+  const top=Math.min(...ys), bottom=Math.max(...ys);
+  const scale=Math.min((width-80)/Math.max(right-left,1.7),(height-90)/Math.max(bottom-top,1.3));
+  const project=point=>{
+    const p=rotatePoint(point);
+    return {x:width/2+(p.x-(left+right)/2)*scale,y:height/2+(p.y-(top+bottom)/2)*scale,depth:p.depth};
+  };
   const scene = document.createDocumentFragment();
   const planes = [-1.65,-.45,.75];
   for (const plane of planes) {
     const line = Array.from({length:73}, (_,i) => {
       const a = i*Math.PI/36;
-      const p = project([2.05*Math.cos(a),plane,1.65*Math.sin(a)],width,height);
+      const p = project([2.05*Math.cos(a),plane,1.65*Math.sin(a)]);
       return p.x.toFixed(1)+","+p.y.toFixed(1);
     }).join(" ");
-    scene.append(svgNode("polyline",{points:line,fill:"none",stroke:"#507477","stroke-opacity":.28,"stroke-dasharray":"2 5"}));
+    scene.append(svgNode("polyline",{points:line,fill:"none",stroke:"#749c99","stroke-opacity":.4,"stroke-dasharray":"2 5"}));
   }
-  const points = new Map(activeIDs.map(id=>[id,project(nodes.get(id).point,width,height)]));
+  const points = new Map(activeIDs.map(id=>[id,project(nodes.get(id).point)]));
   const visibleEdges = edges.filter(edge=>points.has(edge.from)&&points.has(edge.to));
   for (const edge of visibleEdges) {
     const a = points.get(edge.from), b = points.get(edge.to);
     const focus = edge.from===chosen || edge.to===chosen;
-    scene.append(svgNode("line",{x1:a.x,y1:a.y,x2:b.x,y2:b.y,stroke:focus?"#8adcbf":"#66828b","stroke-width":focus?2:1.3}));
+    const inTrace = trace.value!=="all";
+    const stroke = focus?"#9ceacb":inTrace?"#b0d3cf":"#79939b";
+    scene.append(svgNode("line",{x1:a.x,y1:a.y,x2:b.x,y2:b.y,stroke,"stroke-width":focus?2.3:inTrace?2:1.5}));
     const t=.68;
-    const arrow=svgNode("path",{d:"M-4,-2.3 L1,0 L-4,2.3",fill:"none",stroke:focus?"#c8fce7":"#9fb6b8",transform:`translate(${a.x+(b.x-a.x)*t} ${a.y+(b.y-a.y)*t}) rotate(${Math.atan2(b.y-a.y,b.x-a.x)*180/Math.PI})`});
+    const arrow=svgNode("path",{d:"M-4,-2.7 L2,0 L-4,2.7 Z",fill:focus?"#c8fce7":inTrace?"#c7eae3":"#afc2c3",stroke:"none",transform:`translate(${a.x+(b.x-a.x)*t} ${a.y+(b.y-a.y)*t}) rotate(${Math.atan2(b.y-a.y,b.x-a.x)*180/Math.PI})`});
     scene.append(arrow);
   }
   const labels = [];
@@ -196,7 +234,10 @@ function draw() {
     const node=nodes.get(id), color=colors[node.layer];
     const g=svgNode("g",{"data-node":id,transform:`translate(${p.x} ${p.y})`,cursor:"pointer"});
     g.append(svgNode("circle",{r:17,fill:"transparent"}));
-    if (chosen===id) g.append(svgNode("circle",{r:12,fill:"none",stroke:color,"stroke-width":1.5}));
+    if (chosen===id) {
+      g.append(svgNode("circle",{r:18,fill:color,"fill-opacity":.12}));
+      g.append(svgNode("circle",{r:12,fill:"none",stroke:color,"stroke-width":2}));
+    }
     g.append(svgNode("circle",{r:5.5+p.depth*.5,fill:color}));
     scene.append(g);
     labels.push({id,p,name:node.name,color});
@@ -223,7 +264,7 @@ function draw() {
     }
   }
   map.replaceChildren(scene);
-  el("counts").textContent=`${points.size} components · ${visibleEdges.length} links`;
+  el("counts").textContent=`${points.size} components · ${visibleEdges.length} ${visibleEdges.length===1?"link":"links"}`;
 }
 function showComponent(id) {
   chosen=nodes.has(id)?id:"canvas";
@@ -234,6 +275,7 @@ function showComponent(id) {
     fillPicker();
   }
   pick.value=chosen;
+  document.querySelector(".info").style.setProperty("--layer-color",colors[node.layer]);
   el("layer").textContent=node.layer;
   el("name").textContent=node.name;
   el("info-desc").textContent=node.description;
@@ -246,7 +288,13 @@ function showComponent(id) {
     const anchor=document.createElement("a");
     anchor.href="#node/"+next;
     anchor.textContent=nodes.get(next).name;
-    item.append(edge.from===chosen?"To ":"From ",anchor," · "+edge.action);
+    const direction=document.createElement("span");
+    direction.className="direction";
+    direction.textContent=edge.from===chosen?"To":"From";
+    const action=document.createElement("span");
+    action.className="action";
+    action.textContent=edge.action;
+    item.append(direction,anchor,action);
     return item;
   }));
   el("query").textContent=`{ component(id: "${chosen}") { id name layer source connections { from to action } } }`;
