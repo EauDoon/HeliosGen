@@ -23,6 +23,7 @@ import {
   FolderOpen,
   FolderPlus,
   LayoutGrid,
+  Orbit,
   ChevronRight,
   ChevronDown,
 } from "lucide-react";
@@ -845,6 +846,10 @@ export function AppSidebar() {
               <Link key={item.label} href={item.href} onClick={item.onClick} className={itemCls(item.active)} title={item.label}>{content}</Link>
             );
           })}
+          <a href="/architecture.html" className={itemCls(false)} title="Architecture map">
+            <Orbit size={20} strokeWidth={1.5} className="shrink-0" />
+            <span className="text-[14px] font-medium group-data-[collapsible=icon]:hidden leading-none">Architecture map</span>
+          </a>
         </div>
 
         {/* Folders section — hidden in icon mode */}

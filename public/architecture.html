@@ -1,0 +1,312 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark">
+<title>HeliosGen · Desktop architecture</title>
+<style>
+:root{color-scheme:dark;--bg:#0b1218;--surface:#111d23;--line:#314249;--ink:#eff4eb;--sub:#aec1bc;--mint:#7ce1b9;--amber:#f5bf80;--blue:#a7b8ff}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 system-ui,sans-serif}
+main,header{max-width:1260px;margin:auto;padding:0 clamp(16px,4vw,56px)}
+header{display:flex;align-items:center;justify-content:space-between;min-height:66px;border-bottom:1px solid var(--line)}
+header strong{font:italic 1.55rem Georgia,serif;color:var(--mint)}
+a{color:var(--mint);text-underline-offset:.22em;overflow-wrap:anywhere}
+h1,h2,h3,p{margin:0}
+h1{font:normal clamp(2.55rem,6vw,5.1rem)/1.02 Georgia,serif;letter-spacing:-.055em;margin:28px 0 12px}
+h2{font:normal 1.9rem/1.2 Georgia,serif}
+.intro{max-width:66ch;color:var(--sub);margin-bottom:24px}
+button,select{font:inherit;color:var(--ink);background:#19282e;border:1px solid #476069;border-radius:6px;min-height:44px;padding:7px 12px;cursor:pointer}
+button:hover,select:hover{border-color:var(--mint)}
+:focus-visible{outline:3px solid var(--amber);outline-offset:3px}
+[hidden]{display:none!important}
+.controls,.camera,.stage-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.controls{margin:20px 0 12px}
+label{display:flex;align-items:center;gap:8px;color:var(--sub);font-size:.88rem}
+.layout{display:grid;grid-template-columns:minmax(0,2.2fr) minmax(240px,1fr);gap:14px}
+.stage,.info,.index,details.result{border:1px solid var(--line);border-radius:13px}
+.stage{min-width:0;overflow:hidden;background:radial-gradient(ellipse at 49% 40%,#193334 0%,#122329 42%,#101c22 78%)}
+.stage-head,.camera{padding:12px 16px}
+.stage-head{justify-content:space-between;font-size:.8rem;color:var(--sub);border-bottom:1px solid var(--line)}
+#map{display:block;width:100%;height:clamp(320px,38vw,455px);touch-action:pan-y;user-select:none;cursor:grab}
+#map:active{cursor:grabbing}
+#map text{font:600 13px system-ui,sans-serif;paint-order:stroke;stroke:#142127;stroke-width:4px;stroke-linejoin:round;pointer-events:none}
+.camera{border-top:1px solid var(--line)}
+.camera small{color:var(--sub)}
+.info{background:var(--surface);padding:clamp(16px,2.4vw,28px);overflow-wrap:anywhere}
+#layer{display:block;color:var(--amber);font:600 .79rem ui-monospace,monospace;letter-spacing:.05em;margin:0 0 8px}
+#info-desc,.index p{color:var(--sub);margin:10px 0}
+#neighbors{padding-left:1.1em}
+#neighbors li{margin:8px 0}
+#neighbors a{color:var(--ink)}
+.info a code,.index code{font-size:.85rem}
+.result,.index{margin:18px 0;background:#101b21;padding:16px}
+summary{cursor:pointer;color:var(--mint);font-weight:650}
+pre{white-space:pre-wrap;overflow-wrap:anywhere;color:#d8e7e2;line-height:1.5;background:#0a1418;padding:12px;border-radius:6px}
+.index{margin-bottom:40px}.index h2{margin-bottom:16px}
+.catalog{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(240px,100%),1fr));gap:18px}
+.catalog article{border-top:1px solid var(--line);padding-top:14px;min-width:0}
+.catalog h3{font-size:1rem}
+.catalog ul{padding-left:20px;font-size:.86rem;color:var(--sub)}
+@media(max-width:780px){.layout{grid-template-columns:1fr}.controls label{flex-direction:column;align-items:flex-start}.camera small{flex-basis:100%}}
+@media(max-width:420px){.controls{gap:6px}.controls label,.controls select{max-width:100%}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+<header><strong>HeliosGen</strong><nav><a href="#source-index">Source index</a><span id="app-link" hidden> · <a href="./">Back to HeliosGen</a></span></nav></header>
+<main>
+<h1>Desktop architecture</h1>
+<p class="intro">Trace an image from the workflow canvas to its provider and back to disk. Follow the separate paths for saving a canvas and exporting its media.</p>
+<section id="interactive" hidden aria-label="Interactive architecture">
+  <div class="controls">
+    <label>Trace<select id="trace"><option value="all">All connections</option><option value="image">Generate an image</option><option value="save">Save a workflow</option><option value="zip">Export a workflow</option></select></label>
+    <label>Component<select id="pick"></select></label>
+  </div>
+  <div class="layout">
+    <div class="stage">
+      <div class="stage-head"><strong>Component map</strong><span id="counts"></span></div>
+      <svg id="map" role="img" tabindex="0" aria-label="Rotatable 3D component map" aria-describedby="camera-help"></svg>
+      <div class="camera"><button type="button" id="left" aria-label="Rotate left">↶</button><button type="button" id="right" aria-label="Rotate right">↷</button><button type="button" id="reset">Reset view</button><small id="camera-help">Drag sideways or use the arrow keys to rotate. Choose a node on the map or in the component list.</small></div>
+    </div>
+    <aside class="info" aria-live="polite"><span id="layer"></span><h2 id="name"></h2><p id="info-desc"></p><a id="source"><code></code></a><h3 style="margin-top:24px;font-size:1rem">Connections</h3><ul id="neighbors"></ul></aside>
+  </div>
+  <details class="result"><summary>Inspect local query and JSON</summary><p>The fixed query reads the selected component from this page.</p><pre id="query"></pre><pre id="response"></pre></details>
+</section>
+<section class="index" id="source-index"><h2>Source index</h2>
+    <div class="catalog">
+      <article data-id="shell" data-point="-2 1.1 -0.55" data-layer="Shell">
+        <h3>Desktop shell</h3><p>Starts the bundled Node sidecar on loopback and opens the application in the Tauri webview.</p>
+        <a href="https://github.com/EauDoon/HeliosGen/blob/main/src-tauri/src/lib.rs"><code>src-tauri/src/lib.rs</code></a>
+        <ul><li data-to="canvas">opens the editor → Workflow canvas</li></ul>
+      </article>
+      <article data-id="canvas" data-point="-0.72 0.2 0.8" data-layer="Editor">
+        <h3>Workflow canvas</h3><p>Connects prompt, reference and generation nodes. The canvas submits the image request and can export the current workflow.</p>
+        <a href="https://github.com/EauDoon/HeliosGen/blob/main/components/WorkflowCanvas.tsx"><code>components/WorkflowCanvas.tsx</code></a>
+        <ul><li data-to="submit">submits an image job → Image request</li><li data-to="sync">saves workflow state → Workflow save</li><li data-to="export">builds the portable archive → Workflow ZIP</li></ul>
+      </article>
+      <article data-id="submit" data-point="0.14 1.1 0.12" data-layer="Provider">
+        <h3>Image request</h3><p>Builds the model-specific request and, on the kie.ai path, starts a remote task. This path sends the prompt and selected references to the provider.</p>
+        <a href="https://github.com/EauDoon/HeliosGen/blob/main/app/api/generate/route.ts"><code>app/api/generate/route.ts</code></a>
+        <ul><li data-to="refs">prepares local references → Reference upload</li><li data-to="poll">starts status polling → Result polling</li></ul>
+      </article>
+      <article data-id="refs" data-point="1.65 1.3 -0.65" data-layer="Provider">
+        <h3>Reference upload</h3><p>Uploads locally held reference images to the provider’s temporary file service so the remote model can read them.</p>
+        <a href="https://github.com/EauDoon/HeliosGen/blob/main/lib/kieUpload.ts"><code>lib/kieUpload.ts</code></a>
+        <ul></ul>
+      </article>
+      <article data-id="poll" data-point="1.45 0.05 0.65" data-layer="Provider">
+        <h3>Result polling</h3><p>Polls the submitted task, records completion and tries to save returned media locally. If copying fails, the provider URL can remain.</p>
+        <a href="https://github.com/EauDoon/HeliosGen/blob/main/lib/kieJobPoller.ts"><code>lib/kieJobPoller.ts</code></a>
+        <ul><li data-to="disk">mirrors returned media → Media files</li><li data-to="db">records completion → SQLite</li></ul>
+      </article>
+      <article data-id="disk" data-point="1.93 -0.96 -0.1" data-layer="Storage">
+        <h3>Media files</h3><p>Writes media bytes to the configured media directory and returns a relative URL that the application can serve.</p>
+        <a href="https://github.com/EauDoon/HeliosGen/blob/main/lib/guest/localStorage.ts"><code>lib/guest/localStorage.ts</code></a>
+        <ul></ul>
+      </article>
+      <article data-id="sync" data-point="-1.9 -0.9 0.18" data-layer="Storage">
+        <h3>Workflow save</h3><p>Reads or saves workflow spaces through the local API. Space records include the canvas nodes and edges.</p>
+        <a href="https://github.com/EauDoon/HeliosGen/blob/main/app/api/workflows/route.ts"><code>app/api/workflows/route.ts</code></a>
+        <ul><li data-to="db">persists the canvas → SQLite</li></ul>
+      </article>
+      <article data-id="db" data-point="0.08 -1.25 -0.83" data-layer="Storage">
+        <h3>SQLite</h3><p>Opens guest.db in the data directory. It holds workflow spaces, settings and generation records. Media files live separately.</p>
+        <a href="https://github.com/EauDoon/HeliosGen/blob/main/lib/guest/sqlite.ts"><code>lib/guest/sqlite.ts</code></a>
+        <ul></ul>
+      </article>
+      <article data-id="export" data-point="-0.45 -0.4 -1.43" data-layer="Editor">
+        <h3>Workflow ZIP</h3><p>Bundles workflow.json and available referenced media. When an asset cannot be read, the manifest keeps its original reference.</p>
+        <a href="https://github.com/EauDoon/HeliosGen/blob/main/lib/exportWorkflow.ts"><code>lib/exportWorkflow.ts</code></a>
+        <ul></ul>
+      </article>
+    </div>
+</section>
+</main>
+<script>
+"use strict";
+const el = id => document.getElementById(id);
+const entries = [...document.querySelectorAll(".catalog article")];
+const nodes = new Map(entries.map(article => {
+  const {id, point, layer} = article.dataset;
+  const link = article.querySelector("a");
+  return [id, {id, name:article.querySelector("h3").textContent, layer,
+    description:article.querySelector("p").textContent, source:link.textContent,
+    url:link.href, point:point.split(" ").map(Number)}];
+}));
+const edges = entries.flatMap(article => [...article.querySelectorAll("[data-to]")].map(li => ({
+  from:article.dataset.id, to:li.dataset.to, action:li.textContent.split(" → ")[0]
+})));
+const paths = {
+  all:[...nodes.keys()],
+  image:["canvas","submit","refs","poll","disk","db"],
+  save:["canvas","sync","db"],
+  zip:["canvas","export"]
+};
+const colors = {Shell:"#b8c9ff",Editor:"#88e5c4",Provider:"#f5bf80",Storage:"#96d9f1"};
+const map = el("map");
+const pick = el("pick");
+const trace = el("trace");
+let chosen = "canvas";
+let yaw = 0;
+let pitch = -.1;
+let drag = null;
+let activeIDs = paths.all;
+const svgNode = (name, attrs) => {
+  const elem = document.createElementNS("http://www.w3.org/2000/svg",name);
+  Object.entries(attrs).forEach(([key,value]) => elem.setAttribute(key,value));
+  return elem;
+};
+function project([x,y,z],width,height) {
+  const u = x*Math.cos(yaw) - z*Math.sin(yaw);
+  const depth = x*Math.sin(yaw) + z*Math.cos(yaw);
+  const v = y*Math.cos(pitch) - depth*Math.sin(pitch);
+  const w = y*Math.sin(pitch) + depth*Math.cos(pitch);
+  const perspective = 7/(7-w);
+  const scale = Math.min((width-58)/5.15,(height-80)/3.6)*perspective;
+  return {x:width/2+u*scale,y:height/2-v*scale,depth:w};
+}
+function draw() {
+  const width = map.clientWidth, height = map.clientHeight;
+  if (!width || !height) return;
+  map.setAttribute("viewBox", `0 0 ${width} ${height}`);
+  const scene = document.createDocumentFragment();
+  const planes = [-1.65,-.45,.75];
+  for (const plane of planes) {
+    const line = Array.from({length:73}, (_,i) => {
+      const a = i*Math.PI/36;
+      const p = project([2.05*Math.cos(a),plane,1.65*Math.sin(a)],width,height);
+      return p.x.toFixed(1)+","+p.y.toFixed(1);
+    }).join(" ");
+    scene.append(svgNode("polyline",{points:line,fill:"none",stroke:"#507477","stroke-opacity":.28,"stroke-dasharray":"2 5"}));
+  }
+  const points = new Map(activeIDs.map(id=>[id,project(nodes.get(id).point,width,height)]));
+  const visibleEdges = edges.filter(edge=>points.has(edge.from)&&points.has(edge.to));
+  for (const edge of visibleEdges) {
+    const a = points.get(edge.from), b = points.get(edge.to);
+    const focus = edge.from===chosen || edge.to===chosen;
+    scene.append(svgNode("line",{x1:a.x,y1:a.y,x2:b.x,y2:b.y,stroke:focus?"#8adcbf":"#66828b","stroke-width":focus?2:1.3}));
+    const t=.68;
+    const arrow=svgNode("path",{d:"M-4,-2.3 L1,0 L-4,2.3",fill:"none",stroke:focus?"#c8fce7":"#9fb6b8",transform:`translate(${a.x+(b.x-a.x)*t} ${a.y+(b.y-a.y)*t}) rotate(${Math.atan2(b.y-a.y,b.x-a.x)*180/Math.PI})`});
+    scene.append(arrow);
+  }
+  const labels = [];
+  for (const [id,p] of [...points].sort((a,b)=>a[1].depth-b[1].depth)) {
+    const node=nodes.get(id), color=colors[node.layer];
+    const g=svgNode("g",{"data-node":id,transform:`translate(${p.x} ${p.y})`,cursor:"pointer"});
+    g.append(svgNode("circle",{r:17,fill:"transparent"}));
+    if (chosen===id) g.append(svgNode("circle",{r:12,fill:"none",stroke:color,"stroke-width":1.5}));
+    g.append(svgNode("circle",{r:5.5+p.depth*.5,fill:color}));
+    scene.append(g);
+    labels.push({id,p,name:node.name,color});
+  }
+  // Place labels in screen coordinates after projection, so narrow screens
+  // and rotated views do not stack names on top of adjacent markers.
+  const occupied=[...points.values()].map(({x,y})=>({x:x-9,y:y-9,w:18,h:18}));
+  const measure=document.createElement("canvas").getContext("2d");
+  measure.font="600 13px system-ui";
+  labels.sort((a,b)=>Number(b.id===chosen)-Number(a.id===chosen));
+  for (const {p,name,color} of labels) {
+    const w=Math.ceil(measure.measureText(name).width)+6;
+    const x=Math.max(3,Math.min(width-w-3,p.x-w/2));
+    for (const offset of [-30,13,-50,33,-70,53,-90,73]) {
+      const box={x,y:p.y+offset,w,h:17};
+      if (box.y<2 || box.y+box.h>height-2) continue;
+      if (occupied.some(b=>box.x<b.x+b.w && box.x+box.w>b.x && box.y<b.y+b.h && box.y+box.h>b.y)) continue;
+      const label=svgNode("text",{x:x+w/2,y:box.y+13,"text-anchor":"middle",fill:color});
+      label.textContent=name;
+      if (Math.abs(offset)>35) scene.append(svgNode("line",{x1:p.x,y1:p.y,x2:x+w/2,y2:box.y+(offset<0?17:0),stroke:color,"stroke-opacity":.38,"pointer-events":"none"}));
+      scene.append(label);
+      occupied.push(box);
+      break;
+    }
+  }
+  map.replaceChildren(scene);
+  el("counts").textContent=`${points.size} components · ${visibleEdges.length} links`;
+}
+function showComponent(id) {
+  chosen=nodes.has(id)?id:"canvas";
+  const node=nodes.get(chosen);
+  if (!activeIDs.includes(chosen)) {
+    trace.value="all";
+    activeIDs=paths.all;
+    fillPicker();
+  }
+  pick.value=chosen;
+  el("layer").textContent=node.layer;
+  el("name").textContent=node.name;
+  el("info-desc").textContent=node.description;
+  el("source").href=node.url;
+  el("source").firstElementChild.textContent=node.source;
+  const links=edges.filter(edge=>edge.from===chosen||edge.to===chosen);
+  el("neighbors").replaceChildren(...links.map(edge=>{
+    const item=document.createElement("li");
+    const next=edge.from===chosen?edge.to:edge.from;
+    const anchor=document.createElement("a");
+    anchor.href="#node/"+next;
+    anchor.textContent=nodes.get(next).name;
+    item.append(edge.from===chosen?"To ":"From ",anchor," · "+edge.action);
+    return item;
+  }));
+  el("query").textContent=`{ component(id: "${chosen}") { id name layer source connections { from to action } } }`;
+  el("response").textContent=JSON.stringify({data:{component:{id:chosen,name:node.name,layer:node.layer,source:node.source,connections:links}}},null,2);
+  draw();
+}
+function fillPicker() {
+  pick.replaceChildren(...activeIDs.map(id=>new Option(nodes.get(id).name,id)));
+}
+function selectNode(id) {
+  if (!nodes.has(id)) return;
+  location.hash="node/"+id;
+  showComponent(id);
+}
+function visitHash() {
+  const id=location.hash.slice(6);
+  if (location.hash.startsWith("#node/")&&nodes.has(id)) showComponent(id);
+}
+function turn(x,y=0) {
+  yaw+=x;
+  pitch=Math.max(-1.15,Math.min(1.15,pitch+y));
+  draw();
+}
+trace.addEventListener("change",()=>{
+  activeIDs=paths[trace.value];
+  fillPicker();
+  selectNode(activeIDs.includes(chosen)?chosen:activeIDs[0]);
+});
+pick.addEventListener("change",()=>selectNode(pick.value));
+el("left").onclick=()=>turn(-.2);
+el("right").onclick=()=>turn(.2);
+el("reset").onclick=()=>{yaw=0;pitch=-.1;draw();};
+map.addEventListener("keydown",event=>{
+  const angles={ArrowLeft:[-.15,0],ArrowRight:[.15,0],ArrowUp:[0,-.12],ArrowDown:[0,.12]};
+  if (angles[event.key]) {event.preventDefault();turn(...angles[event.key]);}
+});
+map.addEventListener("pointerdown",event=>{
+  if (!event.isPrimary || event.button!==0) return;
+  const node=event.target.closest("[data-node]")?.dataset.node;
+  drag={x:event.clientX,y:event.clientY,oldX:event.clientX,oldY:event.clientY,moved:false,node};
+  map.setPointerCapture(event.pointerId);
+});
+map.addEventListener("pointermove",event=>{
+  if (!drag||!event.isPrimary) return;
+  if (Math.hypot(event.clientX-drag.x,event.clientY-drag.y)>4) drag.moved=true;
+  if (drag.moved) turn((event.clientX-drag.oldX)*.009,(event.clientY-drag.oldY)*.006);
+  drag.oldX=event.clientX;drag.oldY=event.clientY;
+});
+map.addEventListener("pointerup",event=>{
+  if (drag&&event.isPrimary&&!drag.moved&&drag.node) selectNode(drag.node);
+  drag=null;
+});
+map.addEventListener("lostpointercapture",()=>{drag=null;});
+window.addEventListener("hashchange",visitHash);
+window.addEventListener("resize",draw);
+if (location.pathname==="/architecture.html" && ["localhost","127.0.0.1","[::1]"].includes(location.hostname)) el("app-link").hidden=false;
+fillPicker();
+el("interactive").hidden=false;
+showComponent(chosen);
+visitHash();
+</script>
+</body>
+</html>
