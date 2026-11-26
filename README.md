@@ -16,7 +16,7 @@
 # ⬇️ Download
 
 **HeliosGen is a desktop app.** Grab the latest build for your OS from the
-releases page — no account, no server, no cloud setup:
+upstream releases page. The desktop shell and local storage run on your machine.
 
 ### 👉 **[Download from the Releases page](https://github.com/SegFault42/HeliosGen/releases)**
 
@@ -46,8 +46,7 @@ The app is **not code-signed** yet:
 2. Open **Settings → API Keys** and paste your **[kie.ai](https://kie.ai?ref=25abb3f2236cbff9780ab9c2f84479ec) API key**.
 3. Start generating.
 
-Everything stays on your machine. Generations, uploads, folders, workflows and
-settings live in a local database; media is saved to a local folder:
+HeliosGen stores workflow records, settings and generation history in a local SQLite database. It saves media to a local folder. When you submit a generation, the selected provider receives the prompt and applicable reference media.
 
 | OS | Data location |
 | --- | --- |
@@ -58,6 +57,18 @@ settings live in a local database; media is saved to a local folder:
 Delete that folder to reset the app.
 
 ---
+
+## Desktop architecture map · EauDoon fork
+
+Open **Architecture map** in the sidebar when running this fork, or open
+[`public/architecture.html`](public/architecture.html) from a local checkout in a browser.
+On GitHub, use **Download raw file** on that file and open the saved HTML. It works
+offline without a provider account. The upstream download above provides the upstream app.
+
+Follow an image job across the provider boundary, trace a saved canvas into SQLite,
+or see how a workflow becomes a portable ZIP. Select a component to read its source
+and connections or inspect the matching local JSON response. Drag the map or focus it
+and use the arrow keys. The source index below the map also works with JavaScript off.
 
 # 📸 Screenshots
 ## ✨ Simple Image & Video Generation
@@ -99,12 +110,12 @@ Build reusable AI pipelines with:
 - multi-model generation,
 - reference images,
 - automation chains,
-- all running 100% locally on your machine.
+- local workflow editing and storage.
 
 No subscriptions.  
 No disappearing credits.  
 No vendor lock-in.  
-No cloud, no accounts — just a local app and your own kie.ai key.
+The desktop app uses your own provider credentials for generation.
 
 ---
 
@@ -133,7 +144,7 @@ You only pay for what you generate.
 - Reference image support
 - Parallel & sequential pipeline execution
 - Real-time generation history
-- 100% local — your data never leaves your machine
+- Local workflow records and media storage
 - Bring your own kie.ai key
 - Modern responsive UI
 

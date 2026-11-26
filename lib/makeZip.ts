@@ -96,6 +96,12 @@ export function makeZip(entries: ZipEntry[]): Blob {
     0x00, 0x00,             // comment length
   ]);
 
-  const all = [...parts, ...centralParts, eocd].map((u) => u.buffer as ArrayBuffer);
+  // Entries may be views into a larger buffer. ZIP sizes and CRCs describe
+  // only those visible bytes, so keep each view's offset and length.
+  const all = [...parts, ...centralParts, eocd].map((part) =>
+    part.byteOffset === 0 && part.byteLength === part.buffer.byteLength && part.buffer instanceof ArrayBuffer
+      ? part.buffer
+      : new Uint8Array(part).buffer
+  );
   return new Blob(all, { type: "application/zip" });
 }
